@@ -1,66 +1,50 @@
-#include "main.h"
-
-void print_buffer(char buffer[], int *buff_ind);
-
+#include "holberton.h"
 /**
- * _printf - Printf function
- * @format: format.
- * Return: Printed chars.
- */
+ * _printf - function printf selector
+ * @format: format
+ * Return: Number of printed characters excluding the null
+ * Authors - Carlos Garcia - Orlando Gomez - Cohort 10 - Cali
+ **/
 int _printf(const char *format, ...)
 {
-	int i, printed = 0, printed_chars = 0;
-	int flags, width, precision, size, buff_ind = 0;
-	va_list list;
-	char buffer[BUFF_SIZE];
+	int con1 = 0, con2 = 0, flag, lon = 0;
+	va_list arg;
 
-	if (format == NULL)
+	cf_t print[] = { {"c", pc}, {"s", ps}, {"d", pd}, {"i", pi}, {NULL, NULL} };
+
+	if (format == NULL || (format[0] == '%' && format[1] == '\0'))
 		return (-1);
-
-	va_start(list, format);
-
-	for (i = 0; format && format[i] != '\0'; i++)
+	va_start(arg, format);
+	while (format[con1] != '\0')
 	{
-		if (format[i] != '%')
+		if (format[con1] == '%' && format[con1 + 1] != '%')
 		{
-			buffer[buff_ind++] = format[i];
-			if (buff_ind == BUFF_SIZE)
-				print_buffer(buffer, &buff_ind);
-			/* write(1, &format[i], 1);*/
-			printed_chars++;
+			con2 = 0;
+			flag = 0;
+			while (print[con2].p != NULL)
+			{
+				if (format[con1 + 1] == print[con2].print[0])
+				{
+					lon = lon + print[con2].p(arg);
+					flag = 1;
+					con1++; }
+				con2++;
+			}
+			if (flag == 0)
+			{
+				_putchar (format[con1]);
+				lon = lon + 1; }
 		}
+		else if (format[con1] == '%' && format[con1 + 1] == '%')
+		{
+			_putchar ('%');
+			con1++;
+			lon = lon + 1; }
 		else
 		{
-			print_buffer(buffer, &buff_ind);
-			flags = get_flags(format, &i);
-			width = get_width(format, &i, list);
-			precision = get_precision(format, &i, list);
-			size = get_size(format, &i);
-			++i;
-			printed = handle_print(format, &i, list, buffer,
-				flags, width, precision, size);
-			if (printed == -1)
-				return (-1);
-			printed_chars += printed;
-		}
-	}
-
-	print_buffer(buffer, &buff_ind);
-
-	va_end(list);
-
-	return (printed_chars);
-}
-
-/**
- * print_buffer - Prints the contents of the buffer if it exist
- * @buffer: Array of chars
- * @buff_ind: Index at which to add next char, represents the length.
- */
-void print_buffer(char buffer[], int *buff_ind)
-{
-	if (*buff_ind > 0)
-		write(1, &buffer[0], *buff_ind);
-
-	*buff_ind = 0;
+			_putchar (format[con1]);
+			lon = lon + 1; }
+		con1++;	}
+	va_end(arg);
+	return (lon);
 }
